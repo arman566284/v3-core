@@ -1,8 +1,8 @@
 import bn from 'bignumber.js'
 import { BigNumber, BigNumberish, constants, Contract, ContractTransaction, utils, Wallet } from 'ethers'
-import { TestNexusV3Callee } from '../../typechain/TestNexusV3Callee'
-import { TestNexusV3Router } from '../../typechain/TestNexusV3Router'
-import { MockTimeNexusV3Pool } from '../../typechain/MockTimeNexusV3Pool'
+import { TestNevorV3Callee } from '../../typechain/TestNevorV3Callee'
+import { TestNevorV3Router } from '../../typechain/TestNevorV3Router'
+import { MockTimeNevorV3Pool } from '../../typechain/MockTimeNevorV3Pool'
 import { TestERC20 } from '../../typechain/TestERC20'
 
 export const MaxUint128 = BigNumber.from(2).pow(128).sub(1)
@@ -19,12 +19,14 @@ export const MIN_SQRT_RATIO = BigNumber.from('4295128739')
 export const MAX_SQRT_RATIO = BigNumber.from('1461446703485210103287273052203988822378723970342')
 
 export enum FeeAmount {
+  CUSTOM = 200,
   LOW = 500,
   MEDIUM = 3000,
   HIGH = 10000,
 }
 
 export const TICK_SPACINGS: { [amount in FeeAmount]: number } = {
+  [FeeAmount.CUSTOM]: 4,
   [FeeAmount.LOW]: 10,
   [FeeAmount.MEDIUM]: 60,
   [FeeAmount.HIGH]: 200,
@@ -110,10 +112,10 @@ export function createPoolFunctions({
   token1,
   pool,
 }: {
-  swapTarget: TestNexusV3Callee
+  swapTarget: TestNevorV3Callee
   token0: TestERC20
   token1: TestERC20
-  pool: MockTimeNexusV3Pool
+  pool: MockTimeNevorV3Pool
 }): PoolFunctions {
   async function swapToSqrtPrice(
     inputToken: Contract,
@@ -233,9 +235,9 @@ export function createMultiPoolFunctions({
   poolOutput,
 }: {
   inputToken: TestERC20
-  swapTarget: TestNexusV3Router
-  poolInput: MockTimeNexusV3Pool
-  poolOutput: MockTimeNexusV3Pool
+  swapTarget: TestNevorV3Router
+  poolInput: MockTimeNevorV3Pool
+  poolOutput: MockTimeNevorV3Pool
 }): MultiPoolFunctions {
   async function swapForExact0Multi(amountOut: BigNumberish, to: Wallet | string): Promise<ContractTransaction> {
     const method = swapTarget.swapForExact0Multi

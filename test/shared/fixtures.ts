@@ -1,21 +1,21 @@
 import { BigNumber } from 'ethers'
 import { ethers } from 'hardhat'
-import { MockTimeNexusV3Pool } from '../../typechain/MockTimeNexusV3Pool'
+import { MockTimeNevorV3Pool } from '../../typechain/MockTimeNevorV3Pool'
 import { TestERC20 } from '../../typechain/TestERC20'
-import { NexusV3Factory } from '../../typechain/NexusV3Factory'
-import { TestNexusV3Callee } from '../../typechain/TestNexusV3Callee'
-import { TestNexusV3Router } from '../../typechain/TestNexusV3Router'
-import { MockTimeNexusV3PoolDeployer } from '../../typechain/MockTimeNexusV3PoolDeployer'
+import { NevorV3Factory } from '../../typechain/NevorV3Factory'
+import { TestNevorV3Callee } from '../../typechain/TestNevorV3Callee'
+import { TestNevorV3Router } from '../../typechain/TestNevorV3Router'
+import { MockTimeNevorV3PoolDeployer } from '../../typechain/MockTimeNevorV3PoolDeployer'
 
 import { Fixture } from 'ethereum-waffle'
 
 interface FactoryFixture {
-  factory: NexusV3Factory
+  factory: NevorV3Factory
 }
 
 async function factoryFixture(): Promise<FactoryFixture> {
-  const factoryFactory = await ethers.getContractFactory('NexusV3Factory')
-  const factory = (await factoryFactory.deploy()) as NexusV3Factory
+  const factoryFactory = await ethers.getContractFactory('NevorV3Factory')
+  const factory = (await factoryFactory.deploy()) as NevorV3Factory
   return { factory }
 }
 
@@ -41,14 +41,14 @@ async function tokensFixture(): Promise<TokensFixture> {
 type TokensAndFactoryFixture = FactoryFixture & TokensFixture
 
 interface PoolFixture extends TokensAndFactoryFixture {
-  swapTargetCallee: TestNexusV3Callee
-  swapTargetRouter: TestNexusV3Router
+  swapTargetCallee: TestNevorV3Callee
+  swapTargetRouter: TestNevorV3Router
   createPool(
     fee: number,
     tickSpacing: number,
     firstToken?: TestERC20,
     secondToken?: TestERC20
-  ): Promise<MockTimeNexusV3Pool>
+  ): Promise<MockTimeNevorV3Pool>
 }
 
 // Monday, October 5, 2020 9:00:00 AM GMT-05:00
@@ -58,14 +58,14 @@ export const poolFixture: Fixture<PoolFixture> = async function (): Promise<Pool
   const { factory } = await factoryFixture()
   const { token0, token1, token2 } = await tokensFixture()
 
-  const MockTimeNexusV3PoolDeployerFactory = await ethers.getContractFactory('MockTimeNexusV3PoolDeployer')
-  const MockTimeNexusV3PoolFactory = await ethers.getContractFactory('MockTimeNexusV3Pool')
+  const MockTimeNevorV3PoolDeployerFactory = await ethers.getContractFactory('MockTimeNevorV3PoolDeployer')
+  const MockTimeNevorV3PoolFactory = await ethers.getContractFactory('MockTimeNevorV3Pool')
 
-  const calleeContractFactory = await ethers.getContractFactory('TestNexusV3Callee')
-  const routerContractFactory = await ethers.getContractFactory('TestNexusV3Router')
+  const calleeContractFactory = await ethers.getContractFactory('TestNevorV3Callee')
+  const routerContractFactory = await ethers.getContractFactory('TestNevorV3Router')
 
-  const swapTargetCallee = (await calleeContractFactory.deploy()) as TestNexusV3Callee
-  const swapTargetRouter = (await routerContractFactory.deploy()) as TestNexusV3Router
+  const swapTargetCallee = (await calleeContractFactory.deploy()) as TestNevorV3Callee
+  const swapTargetRouter = (await routerContractFactory.deploy()) as TestNevorV3Router
 
   return {
     token0,
@@ -75,7 +75,7 @@ export const poolFixture: Fixture<PoolFixture> = async function (): Promise<Pool
     swapTargetCallee,
     swapTargetRouter,
     createPool: async (fee, tickSpacing, firstToken = token0, secondToken = token1) => {
-      const mockTimePoolDeployer = (await MockTimeNexusV3PoolDeployerFactory.deploy()) as MockTimeNexusV3PoolDeployer
+      const mockTimePoolDeployer = (await MockTimeNevorV3PoolDeployerFactory.deploy()) as MockTimeNevorV3PoolDeployer
       const tx = await mockTimePoolDeployer.deploy(
         factory.address,
         firstToken.address,
@@ -86,7 +86,7 @@ export const poolFixture: Fixture<PoolFixture> = async function (): Promise<Pool
 
       const receipt = await tx.wait()
       const poolAddress = receipt.events?.[0].args?.pool as string
-      return MockTimeNexusV3PoolFactory.attach(poolAddress) as MockTimeNexusV3Pool
+      return MockTimeNevorV3PoolFactory.attach(poolAddress) as MockTimeNevorV3Pool
     },
   }
 }
